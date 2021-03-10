@@ -1,0 +1,40 @@
+name: Auto commit
+
+on: 
+  release:
+    types: [published]
+  push:
+    tags:
+    - 'v*'
+  #  branches: 
+  #    - master
+  # schedule:
+  #  - cron: '0 */9 * * *'
+  watch:
+    types: [started]
+   
+jobs:
+  commiting:
+    runs-on: ubuntu-latest
+    # if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: log
+      run: | 
+        echo -n `date +%Y-%m-%d\ %H:%M:%S`\ -\ >> ./run.log 
+        echo >> ./run.log
+        tail run.log #避免日志上传失败丢失日志
+    - name: Commit #上传日志到仓库
+      env:
+       NAME: DoooReyn
+       EMAIL: jl88744653@gmail.com
+      run: |
+        git config --global user.email "jl88744653@gmail.com"
+        git config --global user.name "DoooReyn"
+        git add .
+        git commit -m "update log" -a
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
